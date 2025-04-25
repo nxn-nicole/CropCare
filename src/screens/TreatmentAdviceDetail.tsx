@@ -20,10 +20,10 @@ export default function TreatmentAdviceDetail() {
   const [title, setTitle] = useState(item.title);
 
   const [modalVisible, setModalVisible] = useState(false);
-  const [tempTitle, setTempTitle] = useState(title); // 临时标题
+  const [tempTitle, setTempTitle] = useState(title); 
 
   const handleToggleFavorite = () => {
-    setIsFavorited((prev) => !prev); // 收藏切换
+    setIsFavorited((prev) => !prev); 
   };
 
   const handleEditTitle = () => {
@@ -40,7 +40,7 @@ export default function TreatmentAdviceDetail() {
     navigation.goBack();
   };
 
-  // ✅ 页面卸载时自动回传最新 title + 收藏状态
+ 
   useEffect(() => {
     return () => {
       if (onReturn) {
@@ -55,7 +55,6 @@ export default function TreatmentAdviceDetail() {
         <Text style={styles.back}>← Back</Text>
       </TouchableOpacity>
 
-      {/* 点击标题修改 */}
       <TouchableOpacity onPress={handleEditTitle}>
         <Text style={styles.title}>{title}</Text>
       </TouchableOpacity>
@@ -75,7 +74,7 @@ export default function TreatmentAdviceDetail() {
         </Text>
       </Pressable>
 
-      {/* 修改标题弹窗 */}
+     
       <Modal visible={modalVisible} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>

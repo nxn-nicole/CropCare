@@ -15,7 +15,7 @@ export default function TreatmentAdvice() {
   const [crop, setCrop] = useState('');
   const [disease, setDisease] = useState('');
   const [saved, setSaved] = useState<TreatmentItem[]>([]);
-  const [refreshFlag, setRefreshFlag] = useState(false); // 🔁 强制 re-render
+  const [refreshFlag, setRefreshFlag] = useState(false); 
 
   const handleSubmit = async () => {
     if (!crop || !disease) {
@@ -58,7 +58,7 @@ export default function TreatmentAdvice() {
             updated = prev.filter((i) => i.id !== returnedItem.id);
           }
 
-          setRefreshFlag((f) => !f); // 🔁 强制刷新 UI
+          setRefreshFlag((f) => !f); 
           return updated;
         });
       },
@@ -70,7 +70,7 @@ export default function TreatmentAdvice() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {/* 强制刷新用 */}
+     
       {refreshFlag && null}
 
       <Text style={styles.pageTitle}>Treatment Advice</Text>
@@ -124,7 +124,7 @@ export default function TreatmentAdvice() {
                       updated = prev.filter((i) => i.id !== returnedItem.id);
                     }
 
-                    setRefreshFlag((f) => !f); // 🔁 强制刷新 UI
+                    setRefreshFlag((f) => !f); 
                     return updated;
                   });
                 },
