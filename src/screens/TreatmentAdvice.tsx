@@ -15,6 +15,7 @@ export default function TreatmentAdvice() {
   const [crop, setCrop] = useState('');
   const [disease, setDisease] = useState('');
   const [saved, setSaved] = useState<TreatmentItem[]>([]);
+  const [refreshFlag, setRefreshFlag] = useState(false); // 🔁 强制 re-render
 
   const handleSubmit = async () => {
     if (!crop || !disease) {
@@ -22,7 +23,6 @@ export default function TreatmentAdvice() {
       return;
     }
 
-    // 模拟 API
     const adviceDetail = await new Promise<string>((resolve) => {
       setTimeout(() => {
         resolve(`This is a treatment suggestion for ${disease} on ${crop}.`);
@@ -44,9 +44,22 @@ export default function TreatmentAdvice() {
       onReturn: (returnedItem, favorited) => {
         setSaved((prev) => {
           const exists = prev.find((i) => i.id === returnedItem.id);
-          if (favorited && !exists) return [...prev, returnedItem];
-          if (!favorited && exists) return prev.filter((i) => i.id !== returnedItem.id);
-          return prev;
+          let updated = prev;
+
+          if (favorited) {
+            if (exists) {
+              updated = prev.map((i) =>
+                i.id === returnedItem.id ? returnedItem : i
+              );
+            } else {
+              updated = [...prev, returnedItem];
+            }
+          } else {
+            updated = prev.filter((i) => i.id !== returnedItem.id);
+          }
+
+          setRefreshFlag((f) => !f); // 🔁 强制刷新 UI
+          return updated;
         });
       },
     });
@@ -57,12 +70,25 @@ export default function TreatmentAdvice() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      {/* 强制刷新用 */}
+      {refreshFlag && null}
+
       <Text style={styles.pageTitle}>Treatment Advice</Text>
 
       <View style={styles.inputBox}>
         <Text style={styles.inputTitle}>Get treatment advice</Text>
-        <TextInput style={styles.input} placeholder="Crop" value={crop} onChangeText={setCrop} />
-        <TextInput style={styles.input} placeholder="Disease" value={disease} onChangeText={setDisease} />
+        <TextInput
+          style={styles.input}
+          placeholder="Crop"
+          value={crop}
+          onChangeText={setCrop}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Disease"
+          value={disease}
+          onChangeText={setDisease}
+        />
         <View style={styles.submitButton}>
           <Button title="Submit" onPress={handleSubmit} color="#fff" />
         </View>
@@ -84,9 +110,22 @@ export default function TreatmentAdvice() {
                 onReturn: (returnedItem, favorited) => {
                   setSaved((prev) => {
                     const exists = prev.find((i) => i.id === returnedItem.id);
-                    if (favorited && !exists) return [...prev, returnedItem];
-                    if (!favorited && exists) return prev.filter((i) => i.id !== returnedItem.id);
-                    return prev;
+                    let updated = prev;
+
+                    if (favorited) {
+                      if (exists) {
+                        updated = prev.map((i) =>
+                          i.id === returnedItem.id ? returnedItem : i
+                        );
+                      } else {
+                        updated = [...prev, returnedItem];
+                      }
+                    } else {
+                      updated = prev.filter((i) => i.id !== returnedItem.id);
+                    }
+
+                    setRefreshFlag((f) => !f); // 🔁 强制刷新 UI
+                    return updated;
                   });
                 },
               })
