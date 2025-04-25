@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native';
 export default StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#4FAD53',
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 20,
@@ -37,7 +37,7 @@ export default StyleSheet.create({
   },
 
   buttonLabel: {
-    color: '#4CAF50',        // 绿色字体
+    color: '#4FAD53',        // 绿色字体
     fontWeight: 'bold',
     fontSize: 16,
   },
