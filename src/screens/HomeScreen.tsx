@@ -9,7 +9,8 @@ export default function HomeScreen() {
   return (
     <Tab.Navigator>
       <Tab.Screen name="Identify Disease" component={IdentifyDisease} />
-      <Tab.Screen name="Treatment Advice" component={TreatmentAdvice} />
+      <Tab.Screen name="Treatment Advice" component={TreatmentAdvice} options={{headerShown:false}}/>
+     
     </Tab.Navigator>
   );
 }
