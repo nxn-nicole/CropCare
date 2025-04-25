@@ -1,58 +1,78 @@
+// TreatmentAdviceDetail.tsx
 import React, { useState } from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity
+    View, Text, StyleSheet, TouchableOpacity, Pressable
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RouteProp } from '@react-navigation/native';
 import type { RootStackParamList } from '../navigation/AppNavigator';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'TreatmentAdviceDetail'>;
+type Route = RouteProp<RootStackParamList, 'TreatmentAdviceDetail'>;
 
-export default function TreatmentAdviceDetailScreen() {
-  const route = useRoute();
-  const navigation = useNavigation<Nav>();
-  const { item } = route.params as any;
+export default function TreatmentAdviceDetail() {
+    const navigation = useNavigation<Nav>();
+    const route = useRoute<Route>();
+    const { item, isFavorited: initiallyFavorited, isFromSubmit } = route.params;
 
-  const [favorited, setFavorited] = useState(false);
+    const [isFavorited, setIsFavorited] = useState(initiallyFavorited);
 
-  const toggleFavorite = () => {
-    const newState = !favorited;
-    setFavorited(newState);
-    navigation.navigate('TreatmentAdvice', {
-      favoriteUpdate: {
-        item,
-        favorited: newState
-      }
-    } as any);
-  };
+    const handleToggleFavorite = () => {
+        const updated = !isFavorited;
+        setIsFavorited(updated);
 
-  return (
-    <View style={styles.container}>
-      <TouchableOpacity onPress={() => navigation.goBack()}>
-        <Text style={styles.back}>← Back</Text>
-      </TouchableOpacity>
+        //返回并更新上个页面收藏状态
+        navigation.navigate({
+            name: 'TreatmentAdvice',
+            params: {
+                favoriteUpdate: {
+                    favorited: updated,
+                    item
+                }
+            },
+            merge: true,
+        });
+    };
 
-      <Text style={styles.title}>{item.title}</Text>
-      <Text style={styles.content}>
-        Crop: {item.crop}{'\n'}
-        Disease: {item.disease}{'\n\n'}
-        {item.detail}
-      </Text>
+    return (
+        <View style={styles.container}>
+            {isFromSubmit && (
+                <TouchableOpacity onPress={() => navigation.goBack()}>
+                    <Text style={styles.back}>← Back</Text>
+                </TouchableOpacity>
+            )}
+            <Text style={styles.title}>{item.title}</Text>
 
-      <TouchableOpacity style={styles.favButton} onPress={toggleFavorite}>
-        <Text style={{ fontSize: 28 }}>{favorited ? '⭐' : '☆'}</Text>
-      </TouchableOpacity>
-    </View>
-  );
+            <View style={styles.detailBox}>
+                <Text style={styles.label}>Crop:</Text>
+                <Text>{item.crop}</Text>
+                <Text style={styles.label}>Disease:</Text>
+                <Text>{item.disease}</Text>
+                <Text style={styles.label}>Suggestion:</Text>
+                <Text>{item.detail}</Text>
+            </View>
+
+            <Pressable onPress={handleToggleFavorite} style={styles.starButton}>
+                <Text style={[styles.starIcon, isFavorited && styles.starActive]}>
+                    {isFavorited ? '⭐' : '☆'}
+                </Text>
+            </Pressable>
+        </View>
+    );
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 20, flex: 1 },
-  back: { fontSize: 18, marginBottom: 10, color: 'green' },
-  title: { fontSize: 22, fontWeight: 'bold', marginBottom: 10, color: 'green' },
-  content: { fontSize: 16, lineHeight: 24 },
-  favButton: {
-    position: 'absolute', bottom: 20, right: 20,
-    backgroundColor: '#fff', padding: 10
-  },
+    container: { flex: 1, backgroundColor: '#fff', padding: 20 },
+    back: { color: 'green', marginBottom: 10, fontSize: 16 },
+    title: { fontSize: 20, fontWeight: 'bold', color: 'green', marginBottom: 20, textAlign: 'center' },
+    detailBox: { padding: 15, borderWidth: 1, borderColor: '#ccc', borderRadius: 10 },
+    label: { fontWeight: 'bold', color: 'green', marginTop: 10 },
+    starButton: {
+        position: 'absolute',
+        bottom: 20,
+        right: 20,
+    },
+    starIcon: { fontSize: 30 },
+    starActive: { color: 'gold' }
 });

@@ -1,85 +1,66 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  View, Text, TextInput, Button,
-  StyleSheet, ScrollView, TouchableOpacity, Alert
+  View, Text, TextInput, Button, StyleSheet,
+  ScrollView, TouchableOpacity, Alert
 } from 'react-native';
 import { useNavigation, useIsFocused, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { RootStackParamList } from '../navigation/AppNavigator';
-
-// 添加类型定义以避免报错
-interface FavoriteUpdateParam {
-  favoriteUpdate?: {
-    item: any;
-    favorited: boolean;
-  };
-}
+import type { RouteProp } from '@react-navigation/native';
+import type { RootStackParamList, TreatmentItem } from '../navigation/AppNavigator';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'TreatmentAdvice'>;
+type Route = RouteProp<RootStackParamList, 'TreatmentAdvice'>;
 
 export default function TreatmentAdvice() {
   const navigation = useNavigation<Nav>();
-  const route = useRoute();
+  const route = useRoute<Route>();
   const isFocused = useIsFocused();
 
   const [crop, setCrop] = useState('');
   const [disease, setDisease] = useState('');
-  const [saved, setSaved] = useState<any[]>([]);
+  const [saved, setSaved] = useState<TreatmentItem[]>([]);
 
-  //提交按钮点击
   const handleSubmit = () => {
     if (!crop || !disease) {
       Alert.alert('Input Required', 'Please enter both crop and disease.');
       return;
     }
-    const newItem = {
-      id: Date.now(),
+
+    const newItem: TreatmentItem = {
+      id: `${crop}_${disease}`,
       title: `Advice for ${crop}`,
       crop,
       disease,
-      detail: `This is a treatment suggestion for ${disease} on ${crop}.`,
+      detail: `This is a treatment suggestion for ${disease} on ${crop}.`, // 替换为 AI 接口返回值
     };
+
     navigation.navigate('TreatmentAdviceDetail', {
       item: newItem,
+      isFavorited: saved.some((s) => s.crop === crop && s.disease === disease),
       isFromSubmit: true
     });
+
     setCrop('');
     setDisease('');
   };
 
-  //检测从详情页返回的收藏数据
-  // useEffect(() => {
-  //   if (!isFocused || !('params' in route) || !route.params) return;
-  
-  //   const params = route.params as any;
-  
-  //   if (params.favoriteUpdate) {
-  //     const updated = params.favoriteUpdate;
-  //     setSaved(prev => {
-  //       if (!updated.favorited) return prev.filter(i => i.id !== updated.item.id);
-  //       if (!prev.find(i => i.id === updated.item.id)) return [...prev, updated.item];
-  //       return prev;
-  //     });
-  
-  //     // 清除参数，防止重复添加
-  //     navigation.setParams({ favoriteUpdate: undefined });
-  //   }
-  // }, [isFocused]);
+  // ✅ 处理收藏/取消收藏后的返回更新
+  // 替换 useEffect 中的收藏更新逻辑：
   useEffect(() => {
-    if (saved.length === 0) {
-      setSaved([
-        {
-          id: 1,
-          title: 'Advice for Tomato',
-          crop: 'Tomato',
-          disease: 'Early Blight',
-          detail: 'This is a mock detail for testing navigation.',
-        },
-      ]);
-    }
-  }, []);
-  
-  
+    if (!isFocused || !route.params?.favoriteUpdate) return;
+
+    const { favorited, item } = route.params.favoriteUpdate;
+
+    setSaved((prev) => {
+      const exists = prev.find((i) => i.crop === item.crop && i.disease === item.disease);
+      if (favorited && !exists) return [...prev, item];
+      if (!favorited && exists) return prev.filter((i) => !(i.crop === item.crop && i.disease === item.disease));
+      return prev;
+    });
+
+    navigation.setParams({ favoriteUpdate: undefined });
+  }, [isFocused]);
+
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -97,16 +78,21 @@ export default function TreatmentAdvice() {
       <Text style={styles.sectionTitle}>Your saved advice</Text>
       <View style={styles.divider} />
 
-      {saved.map((item) => (
+      {saved.length > 0 && saved.map((item, index) => (
         <TouchableOpacity
-          key={item.id}
+          key={item.id || index}
           style={styles.savedItem}
-          onPress={() => navigation.navigate('TreatmentAdviceDetail', { item })}
+          onPress={() => navigation.navigate('TreatmentAdviceDetail', {
+            item,
+            isFavorited: true
+          })}
         >
           <Text>{item.title}</Text>
           <Text style={styles.star}>⭐</Text>
         </TouchableOpacity>
       ))}
+
+
     </ScrollView>
   );
 }
@@ -122,7 +108,7 @@ const styles = StyleSheet.create({
   divider: { height: 1, backgroundColor: '#ccc', marginBottom: 15 },
   savedItem: {
     borderWidth: 1, borderColor: 'green', borderRadius: 8, padding: 12,
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10
   },
   star: { fontSize: 20, color: 'gold' },
 });

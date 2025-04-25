@@ -6,7 +6,14 @@ import HomeScreen from '../screens/HomeScreen';
 import TreatmentAdvice from '../screens/TreatmentAdvice';
 import TreatmentAdviceDetail from '../screens/TreatmentAdviceDetail';
 
-const Stack = createNativeStackNavigator<RootStackParamList>();
+
+export type TreatmentItem = {
+  id: string;
+  title: string;
+  crop: string;
+  disease: string;
+  detail: string;
+};
 
 export type RootStackParamList = {
   GetStarted: undefined;
@@ -15,27 +22,17 @@ export type RootStackParamList = {
   TreatmentAdvice: {
     favoriteUpdate?: {
       favorited: boolean;
-      item: {
-        id: number;
-        title: string;
-        crop: string;
-        disease: string;
-        detail: string;
-      };
+      item: TreatmentItem;
     };
   };
   TreatmentAdviceDetail: {
-    item: {
-      id: number;
-      title: string;
-      crop: string;
-      disease: string;
-      detail: string;
-    };
-    isFromSubmit?: boolean; // 👈 添加这一行即可解决报错
+    item: TreatmentItem;
+    isFavorited: boolean;
+    isFromSubmit?: boolean;
   };
 };
 
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function AppNavigator() {
   return (
