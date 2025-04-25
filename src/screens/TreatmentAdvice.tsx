@@ -20,47 +20,65 @@ export default function TreatmentAdvice() {
   const [disease, setDisease] = useState('');
   const [saved, setSaved] = useState<TreatmentItem[]>([]);
 
-  const handleSubmit = () => {
+  //处理提交
+  const handleSubmit = async () => {
     if (!crop || !disease) {
       Alert.alert('Input Required', 'Please enter both crop and disease.');
       return;
     }
 
-    const newItem: TreatmentItem = {
-      id: `${crop}_${disease}`,
-      title: `Advice for ${crop}`,
-      crop,
-      disease,
-      detail: `This is a treatment suggestion for ${disease} on ${crop}.`, // 替换为 AI 接口返回值
-    };
+    try {
+      //模拟异步请求->fetch
+      const adviceDetail = await new Promise<string>((resolve) => {
+        setTimeout(() => {
+          resolve(`This is a treatment suggestion for ${disease} on ${crop}.`);
+        }, 500);
+      });
 
-    navigation.navigate('TreatmentAdviceDetail', {
-      item: newItem,
-      isFavorited: saved.some((s) => s.crop === crop && s.disease === disease),
-      isFromSubmit: true
-    });
+      const newItem: TreatmentItem = {
+        id: `${crop}_${disease}_${Date.now()}`,
+        title: `Advice for ${crop}`,
+        crop,
+        disease,
+        detail: adviceDetail,
+      };
 
-    setCrop('');
-    setDisease('');
+      navigation.navigate('TreatmentAdviceDetail', {
+        item: newItem,
+        isFavorited: saved.some((s) => s.id === newItem.id),
+        isFromSubmit: true
+      });
+
+      setCrop('');
+      setDisease('');
+    } catch (error) {
+      Alert.alert('Error', 'Failed to get advice from AI service.');
+    }
   };
 
-  // ✅ 处理收藏/取消收藏后的返回更新
-  // 替换 useEffect 中的收藏更新逻辑：
+  //收藏或取消收藏
   useEffect(() => {
     if (!isFocused || !route.params?.favoriteUpdate) return;
-
+  
     const { favorited, item } = route.params.favoriteUpdate;
-
+  
     setSaved((prev) => {
-      const exists = prev.find((i) => i.crop === item.crop && i.disease === item.disease);
-      if (favorited && !exists) return [...prev, item];
-      if (!favorited && exists) return prev.filter((i) => !(i.crop === item.crop && i.disease === item.disease));
-      return prev;
+      const exists = prev.find((i) => i.id === item.id);
+      let nextSaved = prev;
+  
+      if (favorited && !exists) {
+        nextSaved = [...prev, item];
+      } else if (!favorited && exists) {
+        nextSaved = prev.filter((i) => i.id !== item.id);
+      }
+  
+      console.log('✅ 当前收藏:', nextSaved); // 👈 打印收藏列表
+      return nextSaved;
     });
-
+  
     navigation.setParams({ favoriteUpdate: undefined });
   }, [isFocused]);
-
+  
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -68,8 +86,18 @@ export default function TreatmentAdvice() {
 
       <View style={styles.inputBox}>
         <Text style={styles.inputTitle}>Get treatment advice</Text>
-        <TextInput style={styles.input} placeholder="Crop" value={crop} onChangeText={setCrop} />
-        <TextInput style={styles.input} placeholder="Disease" value={disease} onChangeText={setDisease} />
+        <TextInput
+          style={styles.input}
+          placeholder="Crop"
+          value={crop}
+          onChangeText={setCrop}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Disease"
+          value={disease}
+          onChangeText={setDisease}
+        />
         <View style={styles.submitButton}>
           <Button title="Submit" onPress={handleSubmit} color="#fff" />
         </View>
@@ -78,21 +106,24 @@ export default function TreatmentAdvice() {
       <Text style={styles.sectionTitle}>Your saved advice</Text>
       <View style={styles.divider} />
 
-      {saved.length > 0 && saved.map((item, index) => (
-        <TouchableOpacity
-          key={item.id || index}
-          style={styles.savedItem}
-          onPress={() => navigation.navigate('TreatmentAdviceDetail', {
-            item,
-            isFavorited: true
-          })}
-        >
-          <Text>{item.title}</Text>
-          <Text style={styles.star}>⭐</Text>
-        </TouchableOpacity>
-      ))}
-
-
+      {saved.length > 0 ? (
+        saved.map((item) => (
+          <TouchableOpacity
+            key={item.id}
+            style={styles.savedItem}
+            onPress={() => navigation.navigate('TreatmentAdviceDetail', {
+              item,
+              isFavorited: true,
+              isFromSubmit: false
+            })}
+          >
+            <Text>{item.title}</Text>
+            <Text style={styles.star}>⭐</Text>
+          </TouchableOpacity>
+        ))
+      ) : (
+        <Text>No saved advice yet.</Text>
+      )}
     </ScrollView>
   );
 }
