@@ -21,7 +21,7 @@ export const tabBarOptions: BottomTabNavigationOptions = {
   },
   headerShown: false,
   tabBarLabelStyle: {
-      fontSize: 12,
+      fontSize: 15,
       paddingBottom: 5,
     },
 };

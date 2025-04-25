@@ -3,17 +3,13 @@ import { View, Text, ActivityIndicator } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { styles } from './AlertMap.styles';
-
-interface DiseaseMarker {
-  name: string;
-  latitude: number;
-  longitude: number;
-}
+import DiseaseSpotDTO from '../../models/DiseaseSpotDTO';
+import { getMockDiseaseData } from '../../services/DiseaseService'; // 🔥 引入service
 
 export default function AlertMap() {
   const [location, setLocation] = useState<Location.LocationObjectCoords | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [diseaseMarkers, setDiseaseMarkers] = useState<DiseaseMarker[]>([]);
+  const [diseaseMarkers, setDiseaseMarkers] = useState<DiseaseSpotDTO[]>([]);
 
   useEffect(() => {
     (async () => {
@@ -26,21 +22,9 @@ export default function AlertMap() {
       let loc = await Location.getCurrentPositionAsync({});
       setLocation(loc.coords);
 
-      // 生成 mock 数据
-      const lat = loc.coords.latitude;
-      const lon = loc.coords.longitude;
-      const latOffset = 0.009; // 1km 纬度偏移
-      const lonOffset = 0.009 / Math.cos(lat * Math.PI / 180); // 1km 经度偏移
-
-      const mockData: DiseaseMarker[] = [
-        { name: 'Tomato Blight', latitude: lat + latOffset, longitude: lon + lonOffset },
-        { name: 'Corn Leaf Spot', latitude: lat - latOffset * 0.5, longitude: lon + lonOffset * 0.5 },
-        { name: 'Wheat Rust', latitude: lat + latOffset * 0.8, longitude: lon - lonOffset * 0.8 },
-        { name: 'Rice Bacterial Leaf Streak', latitude: lat - latOffset, longitude: lon - lonOffset },
-        { name: 'Soybean Mosaic Virus', latitude: lat + latOffset * 0.3, longitude: lon + lonOffset * 0.7 },
-      ];
-
-      setDiseaseMarkers(mockData);
+      // 调用 service 层函数
+      const markers = await getMockDiseaseData(loc.coords.latitude, loc.coords.longitude);
+      setDiseaseMarkers(markers);
     })();
   }, []);
 
@@ -69,7 +53,7 @@ export default function AlertMap() {
               title="You are here"
             />
 
-            {/* 模拟病害点标记 */}
+            {/* 病害点标记 */}
             {diseaseMarkers.map((marker, index) => (
               <Marker
                 key={index}
@@ -80,7 +64,11 @@ export default function AlertMap() {
             ))}
           </MapView>
         ) : (
-          <ActivityIndicator size="large" color="#4CAF50" />
+            <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#4CAF50"/>
+            <Text style={styles.loadText}>Finding your map...</Text>
+            </View>
+
         )}
       </View>
     </View>

@@ -36,5 +36,6 @@ yarn-error.*
 *.tsbuildinfo
 
 # Ignore IDE cache files
-.idea/caches/
+.idea/
+
 
