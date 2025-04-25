@@ -19,16 +19,12 @@ export type RootStackParamList = {
   GetStarted: undefined;
   Home: undefined;
   IdentifyDisease: undefined;
-  TreatmentAdvice: {
-    favoriteUpdate?: {
-      favorited: boolean;
-      item: TreatmentItem;
-    };
-  };
+  TreatmentAdvice: undefined;
   TreatmentAdviceDetail: {
     item: TreatmentItem;
     isFavorited: boolean;
     isFromSubmit?: boolean;
+    onReturn?: (item: TreatmentItem, favorited: boolean) => void;
   };
 };
 
