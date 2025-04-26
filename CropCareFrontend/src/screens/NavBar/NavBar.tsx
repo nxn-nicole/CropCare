@@ -18,7 +18,7 @@ export default function NavBar() {
         component={IdentifyDisease}
         options={{
           tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name="flower-outline" color={color} size={24} />
+            <MaterialCommunityIcons name="flower-outline" color={color} size={26} />
           ),
         }}
       />
@@ -27,7 +27,7 @@ export default function NavBar() {
         component={TreatmentAdvice}
         options={{
           tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name="hand-heart-outline" color={color} size={24} />
+            <MaterialCommunityIcons name="hand-heart-outline" color={color} size={26} />
           ),
         }}
       />
@@ -36,7 +36,7 @@ export default function NavBar() {
               component={AlertMap}
               options={{
                 tabBarIcon: ({ color }) => (
-                  <MaterialCommunityIcons name="map-outline" color={color} size={24} />
+                  <MaterialCommunityIcons name="map-outline" color={color} size={26} />
                 ),
               }}
             />

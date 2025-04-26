@@ -9,14 +9,14 @@ export default StyleSheet.create({
     paddingHorizontal: 20,
   },
   logo: {
-    width: 80,
-    height: 80,
+    width: 100,
+    height: 100,
     marginBottom: 20,
     resizeMode: 'contain',
-    borderRadius: 8,
+    borderRadius: 10,
   },
   appName: {
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: 'bold',
     color: '#fff',
     marginBottom: 10,
@@ -39,7 +39,7 @@ export default StyleSheet.create({
   buttonLabel: {
     color: '#4FAD53',        // 绿色字体
     fontWeight: 'bold',
-    fontSize: 16,
+    fontSize: 20,
   },
 
   buttonContent: {
