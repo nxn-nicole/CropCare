@@ -1,94 +1,94 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
-  View, Text, TextInput, Button,
-  StyleSheet, ScrollView, TouchableOpacity, Alert
+  View, Text, TextInput, Button, StyleSheet,
+  ScrollView, TouchableOpacity, Alert
 } from 'react-native';
-import { useNavigation, useIsFocused, useRoute } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { RootStackParamList } from '../navigation/AppNavigator';
-
-// 添加类型定义以避免报错
-interface FavoriteUpdateParam {
-  favoriteUpdate?: {
-    item: any;
-    favorited: boolean;
-  };
-}
+import type { RootStackParamList, TreatmentItem } from '../navigation/AppNavigator';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'TreatmentAdvice'>;
 
 export default function TreatmentAdvice() {
   const navigation = useNavigation<Nav>();
-  const route = useRoute();
-  const isFocused = useIsFocused();
 
   const [crop, setCrop] = useState('');
   const [disease, setDisease] = useState('');
-  const [saved, setSaved] = useState<any[]>([]);
+  const [saved, setSaved] = useState<TreatmentItem[]>([]);
+  const [refreshFlag, setRefreshFlag] = useState(false); 
 
-  //提交按钮点击
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!crop || !disease) {
       Alert.alert('Input Required', 'Please enter both crop and disease.');
       return;
     }
-    const newItem = {
-      id: Date.now(),
+
+    const adviceDetail = await new Promise<string>((resolve) => {
+      setTimeout(() => {
+        resolve(`This is a treatment suggestion for ${disease} on ${crop}.`);
+      }, 500);
+    });
+
+    const newItem: TreatmentItem = {
+      id: `${crop}_${disease}_${Date.now()}`,
       title: `Advice for ${crop}`,
       crop,
       disease,
-      detail: `This is a treatment suggestion for ${disease} on ${crop}.`,
+      detail: adviceDetail,
     };
+
     navigation.navigate('TreatmentAdviceDetail', {
       item: newItem,
-      isFromSubmit: true
+      isFavorited: false,
+      isFromSubmit: true,
+      onReturn: (returnedItem, favorited) => {
+        setSaved((prev) => {
+          const exists = prev.find((i) => i.id === returnedItem.id);
+          let updated = prev;
+
+          if (favorited) {
+            if (exists) {
+              updated = prev.map((i) =>
+                i.id === returnedItem.id ? returnedItem : i
+              );
+            } else {
+              updated = [...prev, returnedItem];
+            }
+          } else {
+            updated = prev.filter((i) => i.id !== returnedItem.id);
+          }
+
+          setRefreshFlag((f) => !f); 
+          return updated;
+        });
+      },
     });
+
     setCrop('');
     setDisease('');
   };
 
-  //检测从详情页返回的收藏数据
-  // useEffect(() => {
-  //   if (!isFocused || !('params' in route) || !route.params) return;
-  
-  //   const params = route.params as any;
-  
-  //   if (params.favoriteUpdate) {
-  //     const updated = params.favoriteUpdate;
-  //     setSaved(prev => {
-  //       if (!updated.favorited) return prev.filter(i => i.id !== updated.item.id);
-  //       if (!prev.find(i => i.id === updated.item.id)) return [...prev, updated.item];
-  //       return prev;
-  //     });
-  
-  //     // 清除参数，防止重复添加
-  //     navigation.setParams({ favoriteUpdate: undefined });
-  //   }
-  // }, [isFocused]);
-  useEffect(() => {
-    if (saved.length === 0) {
-      setSaved([
-        {
-          id: 1,
-          title: 'Advice for Tomato',
-          crop: 'Tomato',
-          disease: 'Early Blight',
-          detail: 'This is a mock detail for testing navigation.',
-        },
-      ]);
-    }
-  }, []);
-  
-  
-
   return (
     <ScrollView contentContainerStyle={styles.container}>
+     
+      {refreshFlag && null}
+
       <Text style={styles.pageTitle}>Treatment Advice</Text>
 
       <View style={styles.inputBox}>
         <Text style={styles.inputTitle}>Get treatment advice</Text>
-        <TextInput style={styles.input} placeholder="Crop" value={crop} onChangeText={setCrop} />
-        <TextInput style={styles.input} placeholder="Disease" value={disease} onChangeText={setDisease} />
+        <TextInput
+          style={styles.input}
+          placeholder="Crop"
+          value={crop}
+          onChangeText={setCrop}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Disease"
+          value={disease}
+          onChangeText={setDisease}
+        />
         <View style={styles.submitButton}>
           <Button title="Submit" onPress={handleSubmit} color="#fff" />
         </View>
@@ -97,16 +97,47 @@ export default function TreatmentAdvice() {
       <Text style={styles.sectionTitle}>Your saved advice</Text>
       <View style={styles.divider} />
 
-      {saved.map((item) => (
-        <TouchableOpacity
-          key={item.id}
-          style={styles.savedItem}
-          onPress={() => navigation.navigate('TreatmentAdviceDetail', { item })}
-        >
-          <Text>{item.title}</Text>
-          <Text style={styles.star}>⭐</Text>
-        </TouchableOpacity>
-      ))}
+      {saved.length > 0 ? (
+        saved.map((item, index) => (
+          <TouchableOpacity
+            key={item.id}
+            style={styles.savedItem}
+            onPress={() =>
+              navigation.navigate('TreatmentAdviceDetail', {
+                item,
+                isFavorited: true,
+                isFromSubmit: false,
+                onReturn: (returnedItem, favorited) => {
+                  setSaved((prev) => {
+                    const exists = prev.find((i) => i.id === returnedItem.id);
+                    let updated = prev;
+
+                    if (favorited) {
+                      if (exists) {
+                        updated = prev.map((i) =>
+                          i.id === returnedItem.id ? returnedItem : i
+                        );
+                      } else {
+                        updated = [...prev, returnedItem];
+                      }
+                    } else {
+                      updated = prev.filter((i) => i.id !== returnedItem.id);
+                    }
+
+                    setRefreshFlag((f) => !f); 
+                    return updated;
+                  });
+                },
+              })
+            }
+          >
+            <Text>{item.title}</Text>
+            <Text style={styles.star}>⭐</Text>
+          </TouchableOpacity>
+        ))
+      ) : (
+        <Text>No saved advice yet.</Text>
+      )}
     </ScrollView>
   );
 }
@@ -122,7 +153,7 @@ const styles = StyleSheet.create({
   divider: { height: 1, backgroundColor: '#ccc', marginBottom: 15 },
   savedItem: {
     borderWidth: 1, borderColor: 'green', borderRadius: 8, padding: 12,
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10
   },
   star: { fontSize: 20, color: 'gold' },
 });
