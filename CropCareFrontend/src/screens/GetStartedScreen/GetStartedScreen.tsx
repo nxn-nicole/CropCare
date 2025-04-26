@@ -3,7 +3,7 @@ import { View, Image } from "react-native";
 import { Text, Button } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import styles from "./GetStartedScreen.styles"; // 引入样式
+import styles from "./GetStartedScreen.styles"; 
 
 // Define the type for your navigation stack
 type RootStackParamList = {

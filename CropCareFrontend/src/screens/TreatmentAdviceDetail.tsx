@@ -7,6 +7,8 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RouteProp } from '@react-navigation/native';
 import type { RootStackParamList } from '../navigation/AppNavigator';
+import Markdown from 'react-native-markdown-display';
+
 
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'TreatmentAdviceDetail'>;
@@ -68,7 +70,7 @@ export default function TreatmentAdviceDetail() {
         <Text style={styles.label}>Disease:</Text>
         <Text>{item.symptom}</Text>
         <Text style={styles.label}>Suggestion:</Text>
-        <Text>{detailText}</Text>
+        <Markdown>{detailText}</Markdown>
 
       </View>
 
@@ -106,13 +108,13 @@ export default function TreatmentAdviceDetail() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff', padding: 20 },
-  back: { color: 'green', marginBottom: 10, fontSize: 16, marginTop:40 },
+  back: { color: '#4FAD53', marginBottom: 10, fontSize: 16, marginTop:40 },
   title: {
-    fontSize: 20, fontWeight: 'bold', color: 'green',
+    fontSize: 20, fontWeight: 'bold', color: '#4FAD53',
     marginBottom: 20, textAlign: 'center', textDecorationLine: 'underline'
   },
-  detailBox: { padding: 15, borderWidth: 1, borderColor: '#ccc', borderRadius: 10 },
-  label: { fontWeight: 'bold', color: 'green', marginTop: 10 },
+  detailBox: { padding: 15, borderWidth: 1, borderColor: '#4FAD53', borderRadius: 10 },
+  label: { fontWeight: 'bold', color: '#4FAD53', marginTop: 10 },
   starButton: {
     position: 'absolute',
     bottom: 20,
@@ -127,10 +129,10 @@ const styles = StyleSheet.create({
     width: '80%', backgroundColor: 'white', borderRadius: 10, padding: 20
   },
   modalTitle: {
-    fontWeight: 'bold', fontSize: 18, marginBottom: 10, color: 'green'
+    fontWeight: 'bold', fontSize: 18, marginBottom: 10, color:'#4FAD53'
   },
   modalInput: {
-    borderWidth: 1, borderColor: '#ccc', padding: 10, borderRadius: 8, marginBottom: 20
+    borderWidth: 1, borderColor: '#4FAD53', padding: 10, borderRadius: 8, marginBottom: 20
   },
   modalButtons: {
     flexDirection: 'row', justifyContent: 'flex-end'
@@ -139,6 +141,6 @@ const styles = StyleSheet.create({
     marginRight: 20
   },
   modalConfirm: {
-    backgroundColor: 'green', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 6
+    backgroundColor:'#4FAD53', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 6
   }
 });

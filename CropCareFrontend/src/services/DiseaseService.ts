@@ -1,8 +1,9 @@
-import DiseaseSpotDTO from '../models/DiseaseSpotDTO';
+import { DiseaseSpotDTO } from '../models/DiseaseSpotDTO';
+
 
 export async function getMockDiseaseData(lat: number, lon: number): Promise<DiseaseSpotDTO[]> {
-  const latOffset = 0.009; // 1km 纬度偏移
-  const lonOffset = 0.009 / Math.cos(lat * Math.PI / 180); // 1km 经度偏移
+  const latOffset = 0.009; 
+  const lonOffset = 0.009 / Math.cos(lat * Math.PI / 180); 
 
   const mockData: DiseaseSpotDTO[] = [
     { id: 1, name: 'Tomato Blight', latitude: lat + latOffset, longitude: lon + lonOffset },

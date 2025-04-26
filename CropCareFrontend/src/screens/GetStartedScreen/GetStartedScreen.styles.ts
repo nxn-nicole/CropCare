@@ -29,15 +29,15 @@ export default StyleSheet.create({
   },
   button: {
     position: 'absolute',
-    bottom: 40,              // 距离底部 40px
-    alignSelf: 'center',     // 居中
+    bottom: 40,              
+    alignSelf: 'center',     
     width: 200,
     borderRadius: 8,
     backgroundColor: '#ffffff',
   },
 
   buttonLabel: {
-    color: '#4FAD53',        // 绿色字体
+    color: '#4FAD53',        
     fontWeight: 'bold',
     fontSize: 20,
   },

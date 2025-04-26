@@ -17,9 +17,9 @@ export const styles = StyleSheet.create({
       marginTop: 20,
     },
 loadingContainer: {
-  flex: 1,              // 占满整个屏幕
-  justifyContent: 'center',  // 垂直居中
-  alignItems: 'center',      // 水平居中
+  flex: 1,              
+  justifyContent: 'center',  
+  alignItems: 'center',      
 },
 loadingText:{
     color: '#4FAD53',

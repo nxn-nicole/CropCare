@@ -23,23 +23,38 @@ export default function IdentifyDisease() {
 
   const handleImagePick = async (source: 'camera' | 'library') => {
     let result;
+  
     if (source === 'camera') {
+      const cameraPermission = await ImagePicker.requestCameraPermissionsAsync();
+      if (!cameraPermission.granted) {
+        Alert.alert('Permission required', 'Camera access is needed to take a photo.');
+        return;
+      }
+  
       result = await ImagePicker.launchCameraAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         quality: 1,
       });
     } else {
+      const libraryPermission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!libraryPermission.granted) {
+        Alert.alert('Permission required', 'Photo library access is needed.');
+        return;
+      }
+  
       result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         quality: 1,
       });
     }
-
+  
     setModalVisible(false);
-    if (!result.canceled) {
+  
+    if (!result.canceled && result.assets?.length > 0) {
       setImage(result.assets[0].uri);
     }
   };
+  
 
   const handleRetake = () => {
     setImage(null);
@@ -73,7 +88,7 @@ export default function IdentifyDisease() {
       const data = await response.json();
       const { prediction, probability, type, issue } = data;
 
-      setResponseText(`${prediction}\n${probability}\n${type}\n${issue}`);
+      setResponseText(`Prediction: ${prediction}\nProbability: ${probability}\nType: ${type}\nIssue: ${issue}`);
       setType(type);
       setIssue(issue);
     } catch (err) {
@@ -301,5 +316,8 @@ const styles = StyleSheet.create({
   },
   modalText: {
     fontSize: 16,
+    color: '#4FAD53',
+    fontWeight: 'bold',
   },
+  
 });
