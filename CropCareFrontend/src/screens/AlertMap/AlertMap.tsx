@@ -66,7 +66,7 @@ export default function AlertMap() {
         ) : (
             <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color="#4CAF50"/>
-            <Text style={styles.loadText}>Finding your map...</Text>
+            <Text style={styles.loadText}>Finding your alert map...</Text>
             </View>
 
         )}
