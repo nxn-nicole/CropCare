@@ -66,7 +66,7 @@ export default function TreatmentAdviceDetail() {
         <Text style={styles.label}>Crop:</Text>
         <Text>{item.crop}</Text>
         <Text style={styles.label}>Disease:</Text>
-        <Text>{item.disease}</Text>
+        <Text>{item.symptom}</Text>
         <Text style={styles.label}>Suggestion:</Text>
         <Text>{detailText}</Text>
 

@@ -90,7 +90,7 @@ export default function IdentifyDisease() {
         id: Date.now().toString(),
         title: 'Example',
         crop: '',
-        disease: '',
+        symptom: '',
         detail: responseText,
       },
       isFromSubmit: true,

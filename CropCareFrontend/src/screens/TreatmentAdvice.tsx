@@ -14,27 +14,32 @@ export default function TreatmentAdvice() {
   const navigation = useNavigation<Nav>();
 
   const [crop, setCrop] = useState('');
-  const [disease, setDisease] = useState('');
+  const [symptom, setSymptom] = useState('');
   const [saved, setSaved] = useState<TreatmentItem[]>([]);
   const [refreshFlag, setRefreshFlag] = useState(false); 
 
   const handleSubmit = async () => {
-    if (!crop || !disease) {
-      Alert.alert('Input Required', 'Please enter both crop and disease.');
+    if (!crop || !symptom) {
+      Alert.alert('Input Required', 'Please enter both crop and symptom.');
       return;
     }
-    const response = await axios.post('http://20.211.40.243:8000/rag/by-text', {
-      text: `How to treat ${disease} on ${crop}?`
+    const response = await await axios.post('http://20.211.40.243:8000/rag/by-text', {
+      crop: crop.trim(),
+      symptom: symptom.trim()
     });
+    
         
-    console.log('response from server:', response.data);
-    const adviceDetail = response.data?.result || 'No advice found.';
+    console.log('response from server:', response.data.answer);
+    const adviceDetail = response.data?.answer || 'No advice found.';
+    if (!adviceDetail) {
+      console.warn('No "result" field found in server response:', response.data);
+    }
 
     const newItem: TreatmentItem = {
-      id: `${crop}_${disease}_${Date.now()}`,
+      id: `${crop}_${symptom}_${Date.now()}`,
       title: `Advice for ${crop}`,
       crop,
-      disease,
+      symptom,
       detail: adviceDetail,
     };
 
@@ -66,7 +71,7 @@ export default function TreatmentAdvice() {
     });
 
     setCrop('');
-    setDisease('');
+    setSymptom('');
   };
 
   return (
@@ -87,8 +92,8 @@ export default function TreatmentAdvice() {
         <TextInput
           style={styles.input}
           placeholder="Disease/Symptom"
-          value={disease}
-          onChangeText={setDisease}
+          value={symptom}
+          onChangeText={setSymptom}
         />
         <View style={styles.submitButton}>
           <Button title="Submit" onPress={handleSubmit} color="#fff" />
