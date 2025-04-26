@@ -8,6 +8,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RouteProp } from '@react-navigation/native';
 import type { RootStackParamList } from '../navigation/AppNavigator';
 
+
 type Nav = NativeStackNavigationProp<RootStackParamList, 'TreatmentAdviceDetail'>;
 type Route = RouteProp<RootStackParamList, 'TreatmentAdviceDetail'>;
 
@@ -20,10 +21,11 @@ export default function TreatmentAdviceDetail() {
   const [title, setTitle] = useState(item.title);
 
   const [modalVisible, setModalVisible] = useState(false);
-  const [tempTitle, setTempTitle] = useState(title); 
+  const [tempTitle, setTempTitle] = useState(title);
+  const [detailText, setDetailText] = useState(item.detail);
 
   const handleToggleFavorite = () => {
-    setIsFavorited((prev) => !prev); 
+    setIsFavorited((prev) => !prev);
   };
 
   const handleEditTitle = () => {
@@ -40,14 +42,15 @@ export default function TreatmentAdviceDetail() {
     navigation.goBack();
   };
 
- 
+
   useEffect(() => {
     return () => {
       if (onReturn) {
-        onReturn({ ...item, title }, isFavorited);
+        onReturn({ ...item, title, detail: detailText }, isFavorited);
       }
     };
-  }, [title, isFavorited]);
+  }, [title, isFavorited, detailText]);
+  
 
   return (
     <View style={styles.container}>
@@ -65,7 +68,8 @@ export default function TreatmentAdviceDetail() {
         <Text style={styles.label}>Disease:</Text>
         <Text>{item.disease}</Text>
         <Text style={styles.label}>Suggestion:</Text>
-        <Text>{item.detail}</Text>
+        <Text>{detailText}</Text>
+
       </View>
 
       <Pressable onPress={handleToggleFavorite} style={styles.starButton}>
@@ -74,7 +78,7 @@ export default function TreatmentAdviceDetail() {
         </Text>
       </Pressable>
 
-     
+
       <Modal visible={modalVisible} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>

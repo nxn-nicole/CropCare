@@ -8,19 +8,22 @@ import {
   Modal,
   Pressable,
   Alert,
-  ActivityIndicator,
-  ScrollView
+  ActivityIndicator
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../navigation/AppNavigator';
 
+type Nav = NativeStackNavigationProp<RootStackParamList, 'TreatmentAdvice'>;
 export default function IdentifyDisease() {
-  const [image, setImage] = useState(null);
+  const [image, setImage] = useState<string|null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [responseText, setResponseText] = useState('');
   const [loading, setLoading] = useState(false);
-  const navigation = useNavigation();
+ 
+   const navigation = useNavigation<Nav>();
 
   const handleImagePick = async (type: 'camera' | 'library') => {
     let result;
@@ -57,8 +60,23 @@ export default function IdentifyDisease() {
     setLoading(true);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      setResponseText('This is a dummy analysis result.');
+      const formData = new FormData();
+      formData.append('file', {
+        uri: image,
+        name: 'photo.jpg',
+        type: 'image/jpeg',
+      }as any);
+
+      const response = await fetch('http://20.211.40.243:8001/predict', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        body: formData,
+      });
+
+      const data = await response.json();
+      setResponseText(data.result || 'No result returned');
     } catch (err) {
       Alert.alert('Upload Failed', 'Something went wrong.');
     } finally {
@@ -69,18 +87,19 @@ export default function IdentifyDisease() {
   const goToTreatmentAdvice = () => {
     navigation.navigate('TreatmentAdviceDetail', {
       item: {
-        id: 0,
+        id: Date.now().toString(),
         title: 'Example',
         crop: '',
         disease: '',
         detail: responseText,
       },
       isFromSubmit: true,
+      isFavorited:false
     });
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <View style={styles.container}>
       <Text style={styles.title}>Identify Disease</Text>
 
       <TouchableOpacity style={styles.uploadButton} onPress={() => setModalVisible(true)}>
@@ -138,7 +157,7 @@ export default function IdentifyDisease() {
           </Pressable>
         </View>
       </Modal>
-    </ScrollView>
+    </View>
   );
 }
 

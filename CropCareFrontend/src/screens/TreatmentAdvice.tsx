@@ -7,6 +7,7 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/AppNavigator';
 import TreatmentItem from'../models/TreatmentAdviceDTO';
+import axios from 'axios'; 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'TreatmentAdvice'>;
 
 export default function TreatmentAdvice() {
@@ -22,14 +23,12 @@ export default function TreatmentAdvice() {
       Alert.alert('Input Required', 'Please enter both crop and disease.');
       return;
     }
-
-    const adviceDetail = await new Promise<string>((resolve) => {
-      setTimeout(() => {
-        resolve(`This is a treatment suggestion for ${disease} on ${crop}.`);
-      }, 500);
-      //backend API
+    const response = await axios.post('http://20.211.40.243:8000/rag/by-text', {
+      text: `How to treat ${disease} on ${crop}?`
     });
-
+        
+    console.log('response from server:', response.data);
+    const adviceDetail = response.data?.result || 'No advice found.';
 
     const newItem: TreatmentItem = {
       id: `${crop}_${disease}_${Date.now()}`,
@@ -146,7 +145,14 @@ export default function TreatmentAdvice() {
 
 const styles = StyleSheet.create({
   container: { padding: 20, backgroundColor: '#fff', flexGrow: 1 },
-  pageTitle: { fontSize: 22, color: 'green', fontWeight: 'bold', textAlign: 'center', marginBottom: 20 },
+  pageTitle: {
+    color: '#4FAD53',
+    fontSize: 24,
+    fontFamily: 'Inter',
+    textAlign: 'center',
+    marginBottom: 20,
+    marginTop: 10,
+  },
   inputBox: { borderWidth: 1, borderColor: 'green', borderRadius: 10, padding: 16, marginBottom: 30 },
   inputTitle: { fontWeight: 'bold', color: 'green', marginBottom: 10, fontSize: 16 },
   input: { borderWidth: 1, borderColor: '#ccc', borderRadius: 6, padding: 8, marginBottom: 12 },
