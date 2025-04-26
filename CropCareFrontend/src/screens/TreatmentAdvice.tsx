@@ -5,8 +5,8 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { RootStackParamList, TreatmentItem } from '../navigation/AppNavigator';
-
+import type { RootStackParamList } from '../navigation/AppNavigator';
+import TreatmentItem from'../models/TreatmentAdviceDTO';
 type Nav = NativeStackNavigationProp<RootStackParamList, 'TreatmentAdvice'>;
 
 export default function TreatmentAdvice() {
@@ -27,7 +27,9 @@ export default function TreatmentAdvice() {
       setTimeout(() => {
         resolve(`This is a treatment suggestion for ${disease} on ${crop}.`);
       }, 500);
+      //backend API
     });
+
 
     const newItem: TreatmentItem = {
       id: `${crop}_${disease}_${Date.now()}`,
@@ -85,7 +87,7 @@ export default function TreatmentAdvice() {
         />
         <TextInput
           style={styles.input}
-          placeholder="Disease"
+          placeholder="Disease/Symptom"
           value={disease}
           onChangeText={setDisease}
         />

@@ -5,15 +5,9 @@ import GetStartedScreen from '../screens/GetStartedScreen/GetStartedScreen';
 import NavBar from '../screens/NavBar/NavBar';
 import TreatmentAdvice from '../screens/TreatmentAdvice';
 import TreatmentAdviceDetail from '../screens/TreatmentAdviceDetail';
+import TreatmentItem from '../models/TreatmentAdviceDTO';
 
 
-export type TreatmentItem = {
-  id: string;
-  title: string;
-  crop: string;
-  disease: string;
-  detail: string;
-};
 
 export type RootStackParamList = {
   GetStarted: undefined;

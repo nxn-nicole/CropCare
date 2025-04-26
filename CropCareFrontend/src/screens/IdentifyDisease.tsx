@@ -8,7 +8,8 @@ import {
   Modal,
   Pressable,
   Alert,
-  ActivityIndicator
+  ActivityIndicator,
+  ScrollView
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useNavigation } from '@react-navigation/native';
@@ -79,7 +80,7 @@ export default function IdentifyDisease() {
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <Text style={styles.title}>Identify Disease</Text>
 
       <TouchableOpacity style={styles.uploadButton} onPress={() => setModalVisible(true)}>
@@ -137,7 +138,7 @@ export default function IdentifyDisease() {
           </Pressable>
         </View>
       </Modal>
-    </View>
+    </ScrollView>
   );
 }
 
