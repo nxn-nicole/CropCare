@@ -1,14 +1,7 @@
 import React, { useState } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Image,
-  Modal,
-  Pressable,
-  Alert,
-  ActivityIndicator
+  View, Text, StyleSheet, TouchableOpacity, Image,
+  Modal, Pressable, Alert, ActivityIndicator, ScrollView
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useNavigation } from '@react-navigation/native';
@@ -17,17 +10,20 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'TreatmentAdvice'>;
+
 export default function IdentifyDisease() {
-  const [image, setImage] = useState<string|null>(null);
+  const [image, setImage] = useState<string | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [responseText, setResponseText] = useState('');
   const [loading, setLoading] = useState(false);
- 
-   const navigation = useNavigation<Nav>();
+  const [type, setType] = useState('');
+  const [issue, setIssue] = useState('');
 
-  const handleImagePick = async (type: 'camera' | 'library') => {
+  const navigation = useNavigation<Nav>();
+
+  const handleImagePick = async (source: 'camera' | 'library') => {
     let result;
-    if (type === 'camera') {
+    if (source === 'camera') {
       result = await ImagePicker.launchCameraAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         quality: 1,
@@ -40,7 +36,6 @@ export default function IdentifyDisease() {
     }
 
     setModalVisible(false);
-
     if (!result.canceled) {
       setImage(result.assets[0].uri);
     }
@@ -49,6 +44,8 @@ export default function IdentifyDisease() {
   const handleRetake = () => {
     setImage(null);
     setResponseText('');
+    setType('');
+    setIssue('');
   };
 
   const handleSubmit = async () => {
@@ -65,18 +62,20 @@ export default function IdentifyDisease() {
         uri: image,
         name: 'photo.jpg',
         type: 'image/jpeg',
-      }as any);
+      } as any);
 
       const response = await fetch('http://20.211.40.243:8001/predict', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+        headers: { 'Content-Type': 'multipart/form-data' },
         body: formData,
       });
 
       const data = await response.json();
-      setResponseText(data.result || 'No result returned');
+      const { prediction, probability, type, issue } = data;
+
+      setResponseText(`${prediction}\n${probability}\n${type}\n${issue}`);
+      setType(type);
+      setIssue(issue);
     } catch (err) {
       Alert.alert('Upload Failed', 'Something went wrong.');
     } finally {
@@ -84,22 +83,47 @@ export default function IdentifyDisease() {
     }
   };
 
-  const goToTreatmentAdvice = () => {
-    navigation.navigate('TreatmentAdviceDetail', {
-      item: {
-        id: Date.now().toString(),
-        title: 'Example',
-        crop: '',
-        symptom: '',
-        detail: responseText,
-      },
-      isFromSubmit: true,
-      isFavorited:false
-    });
+  const getTreatmentAdvice = async () => {
+    if (!type || !issue) {
+      Alert.alert('Missing Data', 'Cannot fetch advice without crop and symptom.');
+      return;
+    }
+
+    try {
+      const response = await fetch('http://20.211.40.243:8000/rag/by-text', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          crop: type,
+          symptom: issue,
+        }),
+      });
+
+      const data = await response.json();
+      const advice = data.answer || 'No advice found.';
+
+      navigation.navigate('TreatmentAdviceDetail', {
+        item: {
+          id: Date.now().toString(),
+          title: `Advice for ${type}`,
+          crop: type,
+          symptom: issue,
+          detail: advice,
+        },
+        isFromSubmit: true,
+        isFavorited: false,
+      });
+    } catch (error) {
+      Alert.alert('Fetch Failed', 'Unable to retrieve treatment advice.');
+    }
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView
+      style={styles.scrollView}
+      contentContainerStyle={styles.container}
+      showsVerticalScrollIndicator={true}
+    >
       <Text style={styles.title}>Identify Disease</Text>
 
       <TouchableOpacity style={styles.uploadButton} onPress={() => setModalVisible(true)}>
@@ -120,15 +144,15 @@ export default function IdentifyDisease() {
           <Text style={styles.retakeText}>Retake</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-          {loading ? (
-            <ActivityIndicator color="white" />
-          ) : (
-            <Text style={styles.submitText}>Submit photo</Text>
-          )}
+          {loading ? <ActivityIndicator color="white" /> : <Text style={styles.submitText}>Submit photo</Text>}
         </TouchableOpacity>
       </View>
 
-      <Text style={styles.noteText}>Ensure your photo is clear and in colour.\nUse a plain background and avoid shadows.\nWe accept JPEG and PNG formats.</Text>
+      <Text style={styles.noteText}>
+        Ensure your photo is clear and in colour.{'\n'}
+        Use a plain background and avoid shadows.{'\n'}
+        We accept JPEG and PNG formats.
+      </Text>
 
       {responseText ? (
         <View style={styles.resultBox}>
@@ -137,7 +161,7 @@ export default function IdentifyDisease() {
       ) : null}
 
       {responseText ? (
-        <TouchableOpacity style={styles.adviceButton} onPress={goToTreatmentAdvice}>
+        <TouchableOpacity style={styles.adviceButton} onPress={getTreatmentAdvice}>
           <Text style={styles.adviceText}>Get Treatment Advice</Text>
         </TouchableOpacity>
       ) : null}
@@ -157,15 +181,18 @@ export default function IdentifyDisease() {
           </Pressable>
         </View>
       </Modal>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  scrollView: {
     flex: 1,
-    padding: 20,
     backgroundColor: 'white',
+  },
+  container: {
+    padding: 20,
+    paddingBottom: 100, // avoid tab bar
   },
   title: {
     color: '#4FAD53',
@@ -173,7 +200,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter',
     textAlign: 'center',
     marginBottom: 20,
-    marginTop: 10,
+    marginTop: 40,
   },
   uploadButton: {
     backgroundColor: '#4FAD53',
@@ -190,13 +217,14 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter',
   },
   imageContainer: {
-    height: '33%',
+    height: 250,
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 20,
+    overflow: 'hidden',
   },
   image: {
     width: '100%',

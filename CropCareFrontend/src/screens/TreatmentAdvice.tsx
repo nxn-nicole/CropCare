@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter',
     textAlign: 'center',
     marginBottom: 20,
-    marginTop: 10,
+    marginTop: 40,
   },
   inputBox: { borderWidth: 1, borderColor: 'green', borderRadius: 10, padding: 16, marginBottom: 30 },
   inputTitle: { fontWeight: 'bold', color: 'green', marginBottom: 10, fontSize: 16 },

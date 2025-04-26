@@ -106,7 +106,7 @@ export default function TreatmentAdviceDetail() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff', padding: 20 },
-  back: { color: 'green', marginBottom: 10, fontSize: 16 },
+  back: { color: 'green', marginBottom: 10, fontSize: 16, marginTop:40 },
   title: {
     fontSize: 20, fontWeight: 'bold', color: 'green',
     marginBottom: 20, textAlign: 'center', textDecorationLine: 'underline'
